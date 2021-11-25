@@ -1,6 +1,7 @@
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import time
+import paho.mqtt.client as paho
 
 ## Create pod
 def create_pod(v1, pod_name, c_name, image, namespace, requirements, selector_nodes):
@@ -30,8 +31,9 @@ def create_pod(v1, pod_name, c_name, image, namespace, requirements, selector_no
                     terms_list = []
                     terms_list.append(client.V1NodeSelectorTerm(match_expressions=selector_req_list))
                     affinity=client.V1Affinity(node_affinity=client.V1NodeAffinity(required_during_scheduling_ignored_during_execution=client.V1NodeSelector(node_selector_terms=terms_list)))
-                    spec=client.V1PodSpec(containers=[container],affinity=affinity)     
+                    spec=client.V1PodSpec(containers=[container],affinity=affinity)
                     pod.spec = spec
+                    print('creating pod with selectors')
                     v1.create_namespaced_pod(namespace=namespace,body=pod)
                     if verify_pod_creation(v1, pod_name, namespace):
                         return True
@@ -103,15 +105,24 @@ def scaling_pod(v1, instances, image, namespace, requirements, selector_nodes):
         print("Exception when calling CoreV1Api->delete_namespaced_pod: %s\n" % e)
     return
 
-## Redeploy pod  
+## Redeploy pod
 def redeployment_pod():
     return True
 
 
 ## Operate actuator (publishing message in the broker)
-def operate_actuator(host, port, topic, message):
-    print(host)
+def operate_actuator(broker, port, topic, message):
+    print(broker)
     print(port)
     print(topic)
     print(message)
+    broker = broker
+    port = int(port)
+    def on_publish(client,userdata,result):             #create function for callback
+        print("data published \n")
+        pass
+    client1= paho.Client("control1")                           #create client object
+    client1.on_publish = on_publish                          #assign function to callback
+    client1.connect(broker,port)                                 #establish connection
+    ret= client1.publish(topic,message)                   #publish
     return True
