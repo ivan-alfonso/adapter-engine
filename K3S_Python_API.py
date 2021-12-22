@@ -92,7 +92,7 @@ def offloading_pod(v1, pod_name, image, namespace, requirements, selector_nodes)
 def scaling_pod(v1, instances, image, namespace, requirements, selector_nodes):
     try:
         pods_ready = 0
-        for i in range(instances):
+        for i in range(int(instances)):
             pod_name = str(image) + '-0' + str(i)
             if create_pod(v1, pod_name, pod_name, image, namespace, requirements, selector_nodes) == True:
                 print('Pod created')

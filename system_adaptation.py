@@ -16,21 +16,21 @@ def adapt_system(data):
         if data["status"] == 'firing':
             inf=adaptations[adaptation]
             if adaptation == 'create_pod':
-                if create_pod(v1, inf['name'], inf['name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
+                if create_pod(v1, inf['pod_name'], inf['c_name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
                     print('Pod created')
-            if adaptation == 'scaling_pod':
+            if adaptation == 'scaling':
                 if scaling_pod(v1, inf['instances'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
                     print('Scaling done')
-            if adaptation == 'offloading_pod':
-                if offloading_pod(v1, inf['name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
+            if adaptation == 'offloading':
+                if offloading_pod(v1, inf['pod_name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
                     print('offloading done')
                 else:
                     print('failed offloading')
-            if adaptation == 'redeploy':
+            if adaptation == 'redeployment':
                 list_pods(v1)
                 print('redeploy')
             if adaptation == 'operate_actuator':
-                if operate_actuator(inf['host'], inf['port'], inf['topic'], inf['message']) == True:
+                if operate_actuator(inf['broker_ip'], inf['port'], inf['topic'], inf['message']) == True:
                     print('operate actuator done')
                 else:
                     print('failed operate actuator')
