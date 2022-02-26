@@ -9,27 +9,33 @@ config.load_incluster_config()
 v1 = client.CoreV1Api()
 
 def adapt_system(data):
+    #print(data)
     adaptations = json.loads(data["alerts"][0]['annotations']['adaptations'])
+    print("---------")
+    print(data["alerts"][0]['annotations']['adaptations'])
+    adapts = data["alerts"][0]['annotations']['adaptations']
+    #print(type(adapts))
+    status = data["alerts"][0]["status"]
     for adaptation in adaptations:
-        print(data["status"])
+        print(status)
         print(adaptation)
-        if data["status"] == 'firing':
+        if status == 'firing':
             inf=adaptations[adaptation]
-            if adaptation == 'create_pod':
+            if 'create_pod' in adaptation:
                 if create_pod(v1, inf['pod_name'], inf['c_name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
                     print('Pod created')
-            if adaptation == 'scaling':
+            if 'scaling' in adaptation:
                 if scaling_pod(v1, inf['instances'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
                     print('Scaling done')
-            if adaptation == 'offloading':
+            if 'offloading' in adaptation:
                 if offloading_pod(v1, inf['pod_name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
                     print('offloading done')
                 else:
                     print('failed offloading')
-            if adaptation == 'redeployment':
+            if 'redeployment' in adaptation:
                 list_pods(v1)
                 print('redeploy')
-            if adaptation == 'operate_actuator':
+            if 'operate_actuator' in adaptation:
                 if operate_actuator(inf['broker_ip'], inf['port'], inf['topic'], inf['message']) == True:
                     print('operate actuator done')
                 else:
@@ -37,5 +43,6 @@ def adapt_system(data):
 
         else:
             print("estado diferente a firing: )" + data["status"])
-    inf=adaptations[adaptation]
+    #inf=adaptations[adaptation]
+    print("-----------------")
     return
