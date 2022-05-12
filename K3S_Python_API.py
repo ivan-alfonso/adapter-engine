@@ -1,6 +1,7 @@
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
 import time
+import random
 import paho.mqtt.client as paho
 
 ## Create pod
@@ -63,7 +64,7 @@ def list_pods(v1):
 ## Wait 2 minutes if the pod is ContainerCreating status. Then return False if pod status is not Running and Ready
 def verify_pod_creation(v1, pod_name, namespace):
     for t in range(6):
-        time.sleep(20)
+        time.sleep(2)
         ret = v1.read_namespaced_pod_status(namespace=namespace, name=pod_name)
         phase = ret.status.phase
         print(phase)
@@ -93,7 +94,7 @@ def scaling_pod(v1, instances, image, namespace, requirements, selector_nodes):
     try:
         pods_ready = 0
         for i in range(int(instances)):
-            pod_name = str(image) + '-0' + str(i)
+            pod_name = 'pod-0' + str(i) + '-' + str(random.randint(0, 100000))
             if create_pod(v1, pod_name, pod_name, image, namespace, requirements, selector_nodes) == True:
                 print('Pod created')
                 pods_ready += 1
