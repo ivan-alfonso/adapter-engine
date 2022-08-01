@@ -33,8 +33,10 @@ def adapt_system(data):
                 else:
                     print('failed offloading')
             if 'redeployment' in adaptation:
-                list_pods(v1)
-                print('redeploy')
+                if redeployment_pod(v1, inf['pod_name'], inf['image'], inf['namespace'], inf['requirements'], inf['hosts']) == True:
+                    print('redeployment done')
+                else:
+                    print('failed redeployment')
             if 'operate_actuator' in adaptation:
                 if operate_actuator(inf['broker_ip'], inf['port'], inf['topic'], inf['message']) == True:
                     print('operate actuator done')

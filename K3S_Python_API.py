@@ -83,7 +83,7 @@ def verify_pod_creation(v1, pod_name, namespace):
 
 ## Offload pod
 def offloading_pod(v1, pod_name, image, namespace, requirements, selector_nodes):
-    pod_off_name = pod_name + '-offl'
+    pod_off_name = pod_name + '-' + str(random.randint(0, 100000))
     if create_pod(v1, pod_off_name, pod_off_name, image, namespace, requirements, selector_nodes) == True:
         delete_pod(v1, pod_name, namespace)
         return True
@@ -103,13 +103,22 @@ def scaling_pod(v1, instances, image, namespace, requirements, selector_nodes):
         else:
             return False
     except ApiException as e:
-        print("Exception when calling CoreV1Api->delete_namespaced_pod: %s\n" % e)
+        print("Exception when calling CoreV1Api->create_pod: %s\n" % e)
     return
 
 ## Redeploy pod
-def redeployment_pod():
-    return True
-
+def redeployment_pod(v1, pod_name, image, namespace, requirements, selector_nodes):
+    try:
+        delete_pod(v1, pod_name, namespace)
+        time.sleep(40)
+        if create_pod(v1, pod_name, pod_name, image, namespace, requirements, selector_nodes) == True:
+            print('Pod redeployed')
+            return True
+        else:
+            return False
+    except ApiException as e:
+        print("Exception when calling CoreV1Api->delete_namespaced_pod: %s\n" % e)
+    return
 
 ## Operate actuator (publishing message in the broker)
 def operate_actuator(broker, port, topic, message):
