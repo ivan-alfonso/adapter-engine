@@ -64,25 +64,25 @@ def list_pods(v1):
     return
 
 ## Return true if pod status is Running and Ready
-## Wait 2 minutes if the pod is ContainerCreating status. Then return False if pod status is not Running and Ready
+## Wait 5 minutes if the pod is ContainerCreating status. Then return False if pod status is not Running and Ready
 def verify_pod_creation(v1, pod_name, namespace):
-    for t in range(6):
-        time.sleep(2)
+    for t in range(300):
         ret = v1.read_namespaced_pod_status(namespace=namespace, name=pod_name)
         phase = ret.status.phase
         print(phase)
         if (phase=='Running') and (ret.status.container_statuses[0].ready == True):
             print('Running and ready')
             return True
-        elif (phase=='Pending') and (ret.status.container_statuses != None):
+        elif (phase=='Pending') and (ret.status.container_statuses != None) and (t==60):
             if(ret.status.container_statuses[0].state.waiting.reason != 'ContainerCreating'):
                 print('Pending and not Container Creating')
                 return ('Pending and not Container Creating')
-        else:
+        elif (t==60):
             print('nor Pending nor Running creatingContainer')
             return ('nor Pending nor Running creatingContainer')
-    print('Pending and Container Creating, but exceed 2 minutes')
-    return ('Pending and Container Creating, but exceed 2 minutes')
+        time.sleep(1)    
+    print('Pending and Container Creating, but exceed 5 minutes')
+    return ('Pending and Container Creating, but exceed 5 minutes')
 
 ## Offload pod
 def offloading_pod(v1, pod_name, image, namespace, requirements, selector_nodes, volumes):
